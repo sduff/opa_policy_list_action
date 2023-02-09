@@ -1,6 +1,6 @@
 name: opa_policy_list_action
 author: Simon Duff
-decription: Aciton to apply every policy in a policies.hcl file and summarise the results
+description: Action to apply every policy in a policies.hcl file and summarise the results
 
 inputs:
   timeout:
