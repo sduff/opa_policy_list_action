@@ -23,7 +23,7 @@ runs:
   using: "composite"
   steps:
     - run: ${{ github.action_path }}/opa_policy_list_action.py
-      shell: python
+      shell: bash
 
 branding:
   color: blue
