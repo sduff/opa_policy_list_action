@@ -1,0 +1,30 @@
+name: opa_policy_list_action
+author: Simon Duff
+decription: Aciton to apply every policy in a policies.hcl file and summarise the results
+
+inputs:
+  timeout:
+    description: How long to allow each policy to run
+    required: false
+  policies_file:
+    description: File containing the policy list
+    required: false
+  input_file:
+    description: Input file to check policies against
+    required: false
+  opa_binary:
+    description: Location of the opa binary
+    required: false
+  show_all:
+    description: Show all policy results, not just failures
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - run: ${{ github.action_path }}/opa_policy_list_action.py
+      shell: python
+
+branding:
+  color: blue
+  icon: check-square
