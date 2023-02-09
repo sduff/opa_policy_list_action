@@ -22,7 +22,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: ${{ github.action_path }}/opa_policy_list_action.py
+    - name: Install Python
+      uses: actions/setup-python@v4
+    - name: Run Policy Checks
+      run: python opa_policy_list_action.py
       shell: bash
 
 branding:
