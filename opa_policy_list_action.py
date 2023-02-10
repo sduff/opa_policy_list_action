@@ -11,6 +11,7 @@ import re, sys, json, argparse, subprocess
 parser = argparse.ArgumentParser(
     prog = 'opa_policy_list_action',
     description = 'Apply every policy in a policies.hcl file and summarise the results')
+parser.add_argument('--ascii', action='store_true', help='Use ASCII only, no unicode characters')
 parser.add_argument('--timeout', type=int, default=30, help='how to long to allow each policy to run')
 parser.add_argument('--policies_file', default='./policies.hcl', help='file containing policy list')
 parser.add_argument('--input_file', default='./tfplan.json', help='input file to check policies against')
@@ -23,6 +24,8 @@ args = parser.parse_args()
 # Run the actual policy and return the results
 def run_policy(policy_file, input_file, query, timeout=args.timeout):
     result = {"return_code": 0}
+
+    # determine the proper filename
 
     try:
         r = subprocess.run(
@@ -83,19 +86,39 @@ try:
         for d in data:
             name = (re.search('policy\W*"([^"]+)"', d)).group(1)
             query = (re.search('query\W*=\W*"([^"]+)"', d)).group(1)
-            level = (re.search('enforcement_level\W*=\W*"([^"]+)"', d)).group(1)
+            level = (re.search('enforcement_level\W*=\W*"([^"]+)"', d)).group(1).lower()
 
             result = run_policy(name, args.input_file, query)
 
             if result["return_code"] != 0 or args.show_all:
+                if args.ascii:
+                    if result["return_code"] == 0:
+                        icon = "[ OK ]"
+                    elif result["return_code"] == 1 and level == "advisory":
+                        icon = "[INFO]"
+                        if return_code == 0:
+                            return_code = 1
+                    else: # mandatory and failure
+                        icon = "[FAIL]"
+                        return_code = 2
+                else:
+                    #         Advisory Mandatory
+                    # Success    ✅       ✅
+                    # Failure    ⚠️        ❌
+                    if result["return_code"] == 0:
+                        icon = "✅"
+                    elif result["return_code"] == 1 and level == "advisory":
+                        icon = "⚠️ "
+                        if return_code == 0:
+                            return_code = 1
+                    else: # mandatory and failure
+                        icon = "❌"
+                        return_code = 2
 
-                rez = "SUCCESS" if result["return_code"] == 0 else "FAILURE"
-                print (f"{name : <50}{rez : >30}{level : >10}")
+                print (f"{icon} {name}")
                 for m in result["msg"]:
                     print("\t",m)
 
-            if level == "mandatory" and result["return_code"] > 0:
-                return_code = result["return_code"]
 
 except FileNotFoundError as e:
     print(f"FATAL: Unable to parse policy file, looked for {args.policies_file}")
