@@ -26,18 +26,14 @@ runs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-    - uses: actions/checkout@v3
-      with:
-        path: .
-    - name: pwd
-      run: pwd
-      shell: bash
     - name: List files in checkout
       run: ls -alR /home/runner/
       shell: bash
     - name: Run Policy Checks
       run: python opa_policy_list_action.py
       shell: bash
+      with:
+        path: .
 
 branding:
   color: blue
