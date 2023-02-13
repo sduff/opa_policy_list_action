@@ -32,8 +32,6 @@ runs:
     - name: Run Policy Checks
       run: python opa_policy_list_action.py
       shell: bash
-      with:
-        path: .
 
 branding:
   color: blue
