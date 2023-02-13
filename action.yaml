@@ -30,7 +30,8 @@ runs:
       with:
         path: .
     - name: Run Policy Checks
-      run: python opa_policy_list_action.py
+      run: ls -alR
+        | python opa_policy_list_action.py
       shell: bash
 
 branding:
