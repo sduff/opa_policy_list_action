@@ -29,9 +29,11 @@ runs:
     - uses: actions/checkout@v3
       with:
         path: .
-    - name: Run Policy Checks
+    - name: List files in checkout
       run: ls -alR
-        | python opa_policy_list_action.py
+      shell: bash
+    - name: Run Policy Checks
+      run: python opa_policy_list_action.py
       shell: bash
 
 branding:
