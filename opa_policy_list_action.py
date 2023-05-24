@@ -22,16 +22,14 @@ args = parser.parse_args()
 
 
 # Run the actual policy and return the results
-def run_policy(policy_file, input_file, query, timeout=args.timeout):
+def run_policy(input_file, query, timeout=args.timeout):
     result = {"return_code": 0}
-
-    # determine the proper filename
 
     try:
         r = subprocess.run(
             [
                 args.opa_binary, "eval",
-                "--data", policy_file,
+                "--data", ".",      # search current directory for rego files. Maybe make this configurable
                 "--input", input_file,
                 "--format", "raw",
                 "--fail",
@@ -88,7 +86,8 @@ try:
             query = (re.search('query\W*=\W*"([^"]+)"', d)).group(1)
             level = (re.search('enforcement_level\W*=\W*"([^"]+)"', d)).group(1).lower()
 
-            result = run_policy(name, args.input_file, query)
+            #result = run_policy(name, args.input_file, query)
+            result = run_policy(args.input_file, query)
 
             if result["return_code"] != 0 or args.show_all:
                 if args.ascii:
@@ -96,6 +95,7 @@ try:
                         icon = "[ OK ]"
                     elif result["return_code"] == 1 and level == "advisory":
                         icon = "[INFO]"
+                        # update the return code only if its still 0
                         if return_code == 0:
                             return_code = 1
                     else: # mandatory and failure
@@ -109,6 +109,7 @@ try:
                         icon = "✅"
                     elif result["return_code"] == 1 and level == "advisory":
                         icon = "⚠️ "
+                        # update the return code only if its still 0
                         if return_code == 0:
                             return_code = 1
                     else: # mandatory and failure
